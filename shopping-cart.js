@@ -48,24 +48,28 @@ class UI {
   getButtons() {
     const buttons = [...document.querySelectorAll(".btn-add-to-cart")];
     buttonsDOM = buttons;
-    buttonsDOM.forEach((button) => {
-      button.addEventListener("click", (e) => {
-        e.target.classList.add("disabled");
-        e.target.style.opacity = ".3";
-        let cartItem = {
-          amount: 1,
-          ...Storage.getProduct(button.dataset.id),
-        };
-        cart = [...cart, cartItem];
-        Storage.saveCart(cart);
-        this.setCartValues(cart);
-        this.setCart(cart);
-        this.showCart();
-        let inCart = cart.find((item) => item.id === button.dataset.id);
-        if (!inCart) {
-          button.classList.remove("disabled");
-        }
-      });
+    buttons.forEach((button) => {
+      let inCart = cart.find((item) => item.id === button.dataset.id);
+      if (inCart) {
+        // button.classList.add("disabled");
+        button.setAttribute("disabled", "disabled");
+        button.style.opacity = ".5";
+      } else {
+        button.addEventListener("click", (e) => {
+          // button.classList.add("disabled");
+          button.setAttribute("disabled", "disabled");
+          button.style.opacity = ".5";
+          let cartItem = {
+            amount: 1,
+            ...Storage.getProduct(button.dataset.id),
+          };
+          cart = [...cart, cartItem];
+          Storage.saveCart(cart);
+          this.setCartValues(cart);
+          this.setCart(cart);
+          this.showCart();
+        });
+      }
     });
   }
 
@@ -120,6 +124,10 @@ class UI {
   cartLogic() {
     clearCartBtn.addEventListener("click", () => {
       cart = [];
+      buttonsDOM.forEach((button) => {
+        button.removeAttribute("disabled");
+        button.style.opacity = "1";
+      });
       this.setCart(cart);
       this.setCartValues(cart);
       Storage.saveCart(cart);
@@ -132,12 +140,6 @@ class UI {
           currentItem.amount -= 1;
           this.setCartValues(cart);
           this.setCart(cart);
-        } else {
-          let filteredCart = cart.filter((item) => item.id !== currentItem.id);
-          cart = [...filteredCart];
-          this.setCart(cart);
-          this.setCartValues(cart);
-          Storage.saveCart(cart);
         }
       } else if (e.target.classList.contains("quantity-plus")) {
         let currentItem = cart.find((item) => item.id == e.target.dataset.id);
@@ -146,9 +148,14 @@ class UI {
         this.setCart(cart);
       } else if (e.target.classList.contains("cart-remove-btn")) {
         e.target.parentElement.parentElement.parentElement.remove();
-        let removeItem = cart.find((item) => item.id == e.target.dataset.id);
-        let filteredCart = cart.filter((item) => item.id !== removeItem.id);
+        let removedItem = cart.find((item) => item.id == e.target.dataset.id);
+        let filteredCart = cart.filter((item) => item.id !== removedItem.id);
         cart = [...filteredCart];
+        let buttonDOM = buttonsDOM.find(
+          (button) => button.dataset.id === e.target.dataset.id
+        );
+        buttonDOM.removeAttribute("disabled");
+        buttonDOM.style.opacity = "1";
         this.setCart(cart);
         this.setCartValues(cart);
         Storage.saveCart(cart);
