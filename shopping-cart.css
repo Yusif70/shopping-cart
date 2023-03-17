@@ -80,13 +80,14 @@ button {
 
 .banner-area .banner-image > img {
   height: 700px;
+  width: 100%;
 }
 
-@media (min-width: 1400px) {
+/* @media (min-width: 1400px) {
   .banner-area .banner-image > img {
     width: 100%;
   }
-}
+} */
 
 @media (max-width: 768px) {
   .banner-area .banner-image > img {
